@@ -1,5 +1,5 @@
 # Evaluation Code for MLMamba
-This is my fork of vlm-evaluation to provide the evaluation code of [MLMamba](https://github.com/h-zhao1997/mlmamba). The content below mainly comes from the main branch.
+This is my fork of vlm-evaluation to provide the evaluation code of [ML-Mamba](https://github.com/WenjunHuang94/ML-Mamba). The content below mainly comes from the main branch.
 
 # VLM Evaluation
 ![](./images/03-evaluation-suite-med-res.png)
@@ -22,7 +22,7 @@ requires PyTorch >= 2.1.0, but has only been thoroughly tested with PyTorch 2.1.
 Once PyTorch has been properly installed, you can install this package locally via an editable installation:
 
 ```bash
-git clone https://github.com/h-zhao1997/vlm-evaluation
+git clone https://github.com/WenjunHuang94/vlm-evaluation
 cd vlm-evaluation
 pip install -e .
 ```
