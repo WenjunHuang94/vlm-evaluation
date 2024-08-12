@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from accelerate import PartialState
 from PIL.Image import Image
-from prismatic import load
+#from prismatic import load
 
 from vlm_eval.util.interfaces import VLM, ImageProcessor, Tokenizer
 

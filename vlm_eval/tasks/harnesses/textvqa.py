@@ -165,7 +165,7 @@ class TextVQAMapDataset(Dataset):
         qprompt_ocr = self.prompt_fn(ex["question"])
         qprompt_no_ocr = self.prompt_fn(ex["question"].split("\nReference OCR token:")[0])
 
-        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_cobra"):
+        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_mlmamba"):
             # This is a standard `torchvision.transforms` object or custom PrismaticVLM wrapper
             pixel_values = self.image_processor(Image.open(self.root_dir / ex["img_path"]).convert("RGB"))
 
@@ -258,6 +258,8 @@ class TextVQATaskRunner:
 
         finally:
             with open(self.task_results_dir / f"results+rank-{self.distributed_state.process_index}.json", "w") as f:
+                res_address = self.task_results_dir / f"results+rank-{self.distributed_state.process_index}.json"
+                print('res addres = ', res_address)
                 json.dump(result_qa_pairs, f, indent=2)
 
         # Block on all processes before returning!
@@ -289,10 +291,10 @@ class TextVQAScorer:
         """TextVQA Evaluation Script expects List[{"pred_answer": str, "gt_answers": List[str] (lower, no punkt)}]."""
 
         # Dump Full Results to JSON (for later inspection)
-        with open(self.task_results_dir / "full-results.json", "w") as f:
+        with open(self.task_results_dir / "full-results.json", "w") as f:  # 往这里写入内容
             json.dump(self.full_result_qa_pairs, f, indent=2)
 
-        with open(self.annotations_file, "r") as f:
+        with open(self.annotations_file, "r") as f:  # 读, /home/disk1/vlm-evaluation/datasets/text-vqa/annotations-textvqa-slim-1024.json
             annotations = json.load(f)
 
         # Convert to Text VQA Expected Format --> with answer formatting (strip punctuation & lowercase)
@@ -307,7 +309,7 @@ class TextVQAScorer:
 
         # Write Predictions to Disk
         suffix = "with-ocr" if with_ocr_tokens else "without-ocr"
-        with open(self.task_results_dir / f"text-vqa-formatted-predictions-{suffix}.json", "w") as f:
+        with open(self.task_results_dir / f"text-vqa-formatted-predictions-{suffix}.json", "w") as f:  # results/text-vqa/text-vqa-slim/mlmamba+3b/text-vqa-formatted-predictions-with-ocr.json
             json.dump(predictions, f, indent=2)
 
     def score(self, model_id: str) -> Dict[str, float]:

@@ -1,5 +1,5 @@
-# Evaluation Code for Cobra
-This is my fork of vlm-evaluation to provide the evaluation code of [Cobra](https://github.com/h-zhao1997/cobra). The content below mainly comes from the main branch.
+# Evaluation Code for MLMamba
+This is my fork of vlm-evaluation to provide the evaluation code of [MLMamba](https://github.com/h-zhao1997/mlmamba). The content below mainly comes from the main branch.
 
 # VLM Evaluation
 ![](./images/03-evaluation-suite-med-res.png)

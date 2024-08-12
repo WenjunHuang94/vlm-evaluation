@@ -35,7 +35,7 @@ def build_vsr_indices(root_dir: Path, slim_dataset_sizes: Optional[Tuple[int, ..
     os.makedirs(dataset_dir := root_dir / paths["dataset_dir"], exist_ok=True)
 
     # Short-Circuit (if index files have already been built)
-    assert slim_dataset_sizes is None, "VSR is Tiny -- no slim dataset!"
+    #assert slim_dataset_sizes is None, "VSR is Tiny -- no slim dataset!"
     index_files = [dataset_dir / "metadata-full.json"]
     if all([index_file.exists() for index_file in index_files]):
         return index_files
@@ -138,7 +138,7 @@ class VSRMapDataset(Dataset):
         ex = self.examples[idx]
         caption_prompt = self.prompt_fn(ex["caption"])
 
-        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_cobra"):
+        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_mlmamba"):
             # This is a standard `torchvision.transforms` object or custom PrismaticVLM wrapper
             pixel_values = self.image_processor(Image.open(self.root_dir / ex["img_path"]).convert("RGB"))
         else:

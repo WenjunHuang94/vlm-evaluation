@@ -156,7 +156,7 @@ class GQAMapDataset(Dataset):
         ex = self.examples[idx]
         question_prompt = self.prompt_fn(ex["question"])
 
-        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_cobra"):
+        if isinstance(self.image_processor, Compose) or hasattr(self.image_processor, "is_prismatic") or hasattr(self.image_processor, "is_mlmamba"):
             # This is a standard `torchvision.transforms` object or custom PrismaticVLM wrapper
             pixel_values = self.image_processor(Image.open(self.root_dir / ex["img_path"]).convert("RGB"))
         else:
@@ -292,7 +292,8 @@ class GQAScorer:
 
         # Run Official Evaluation Script
         output = subprocess.run(
-            f"python vlm_eval/util/evaluation/gqa/eval.py --tier {self.split} --questions {qfile} --predictions {pfile}",
+            #f"python vlm_eval/util/evaluation/gqa/eval.py --tier {self.split} --questions {qfile} --predictions {pfile}",
+            f"python ../vlm_eval/util/evaluation/gqa/eval.py --tier {self.split} --questions {qfile} --predictions {pfile}",
             capture_output=True,
             check=True,
             shell=True,

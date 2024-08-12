@@ -34,13 +34,14 @@ class EvaluationConfig:
 
     # DatasetConfig from `vlm_eval/conf/datasets.py`; override with --dataset.type `DatasetRegistry.<DATASET>.dataset_id`
     dataset: DatasetConfig = field(
-        default_factory=DatasetConfig.get_choice_class(DatasetRegistry.AI2D_FULL.dataset_id)
+        #default_factory=DatasetConfig.get_choice_class(DatasetRegistry.AI2D_FULL.dataset_id)
+        default_factory=DatasetConfig.get_choice_class(DatasetRegistry.TEXTVQA_SLIM.dataset_id)  # Modify this!!!  修改这里！！！
     )
 
     # === Model Parameters =>> Prismatic ===
-    model_family: str = "cobra"                 # Model family to load from in < `prismatic` | `llava-v15` | ... >
+    model_family: str = "mlmamba"                 # Model family to load from in < `prismatic` | `llava-v15` | ... >
     model_id: Optional[str] = (                     # Model ID to load and run (instance of `model_family`)
-        "cobra+3b"
+        "mlmamba+3b"
     )
     model_dir: Optional[Path] = None                # Path to model checkpoint to load --> should be self-contained
 
@@ -56,7 +57,7 @@ class EvaluationConfig:
 
     # Inference Parameters
     device_batch_size: int = 1                      # Device Batch Size set to 1 until LLaVa/HF LLaMa fixes bugs!
-    num_workers: int = 2                            # Number of Dataloader Workers (on each process)
+    num_workers: int = 8                            # Number of Dataloader Workers (on each process)
 
     # Artifact Parameters
     results_dir: Path = Path(                       # Path to results directory (writing predicted output, metrics)
@@ -77,12 +78,16 @@ class EvaluationConfig:
 
 @draccus.wrap()
 def evaluate(cfg: EvaluationConfig) -> None:
+    cfg.model_id = 'mlmamba+3b'
+    #cfg.dataset.type = 'text-vqa-slim'
+    cfg.dataset.root_dir = Path('/home/disk1/vlm-evaluation')  # Modify the evaluation data path to vlm evaluation   修改成vlm-evaluation的评测数据路径
+
     overwatch.info(f"Starting Evaluation for Dataset `{cfg.dataset.dataset_id}` w/ Model `{cfg.model_id}`")
     set_seed(cfg.seed)
 
     # Short-Circuit (if results/metrics already exist)
     task_results_dir = cfg.results_dir / cfg.dataset.dataset_family / cfg.dataset.dataset_id / cfg.model_id
-    if (task_results_dir / "metrics.json").exists():
+    if (task_results_dir / "metrics.json").exists():  # results/text-vqa/text-vqa-slim/mlmamba+3b/metrics.json
         overwatch.info(f"Metrics for `{cfg.dataset.dataset_id}` w/ `{cfg.model_id}` exist =>> exiting!")
         return
 
@@ -95,10 +100,10 @@ def evaluate(cfg: EvaluationConfig) -> None:
     overwatch.info(f"Building Evaluation Runner for Dataset `{cfg.dataset.dataset_id}`")
     task_runner = get_task_runner(
         cfg.dataset.dataset_family,
-        cfg.dataset.root_dir,
+        cfg.dataset.root_dir,  # '/home/disk1/vlm-evaluation'
         cfg.dataset.index_file,
         task_results_dir,
-        cfg.model_id,
+        cfg.model_id,  # 'mlmamba+3b'
         prompt_fn=vlm.get_prompt_fn(cfg.dataset.dataset_family),
         image_processor=vlm.image_processor,
     )

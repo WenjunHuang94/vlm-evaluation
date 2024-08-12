@@ -41,7 +41,7 @@ class DatasetPreparationConfig:
     # Path Parameters
     root_dir: Path = Path(                                      # Path to root directory for storing datasets
         # "datasets/vlm-evaluation"
-        "/mnt/fsx/skaramcheti/datasets/vlm-evaluation"
+        "/home/disk1/vlm-evaluation"
     )
 
     # HF Hub Credentials (for LLaMa-2)
@@ -54,6 +54,8 @@ class DatasetPreparationConfig:
 
 @draccus.wrap()
 def prepare(cfg: DatasetPreparationConfig) -> None:
+    cfg.dataset_family = 'vsr'  # 修改这里 可以从中dataset_family选择[vqa-v2, gqa, vizwiz, text-vqa, refcoco, ocid-ref, tally-qa, pope, vsr]
+
     overwatch.info(f"Downloading and Preparing VLM Evaluation Dataset `{cfg.dataset_family}`")
 
     # Phase 1 :: Download & Extract Raw Data to `cfg.data_dir` / cfg.dataset_id / "download"

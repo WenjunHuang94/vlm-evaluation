@@ -6,10 +6,10 @@ from vlm_eval.util.interfaces import VLM
 from .instructblip import InstructBLIP
 from .llava import LLaVa
 from .prismatic import PrismaticVLM
-from .cobra import CobraVLM
+from .mlmamba import MLMambaVLM
 
 # === Initializer Dispatch by Family ===
-FAMILY2INITIALIZER = {"instruct-blip": InstructBLIP, "llava-v15": LLaVa, "prismatic": PrismaticVLM, "cobra": CobraVLM}
+FAMILY2INITIALIZER = {"instruct-blip": InstructBLIP, "llava-v15": LLaVa, "prismatic": PrismaticVLM, "mlmamba": MLMambaVLM}
 
 
 def load_vlm(
@@ -24,12 +24,12 @@ def load_vlm(
 ) -> VLM:
     assert model_family in FAMILY2INITIALIZER, f"Model family `{model_family}` not supported!"
     return FAMILY2INITIALIZER[model_family](
-        model_family=model_family,
-        model_id=model_id,
-        run_dir=run_dir,
+        model_family=model_family,  # 'mlmamba'
+        model_id=model_id,  # 'mlmamba+3b'
+        run_dir=run_dir,  # None
         hf_token=hf_token,
-        load_precision=load_precision,
-        max_length=max_length,
-        temperature=temperature,
-        ocr=ocr,
+        load_precision=load_precision,  # 'bf16'
+        max_length=max_length,  # 128
+        temperature=temperature,  # 1.0
+        ocr=ocr,  # False
     )

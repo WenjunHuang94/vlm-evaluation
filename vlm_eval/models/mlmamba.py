@@ -1,7 +1,7 @@
 """
-cobra.py
+mlmamba.py
 
-Class definition for wrapping arbitrary "Cobra VLMs" (including replications of LLaVa, BLIP-2, etc.), wrapping
+Class definition for wrapping arbitrary "MLMamba VLMs" (including replications of LLaVa, BLIP-2, etc.), wrapping
 utilities for VQA, image captioning, and (WIP) conditional likelihood estimation.
 """
 from pathlib import Path
@@ -11,12 +11,12 @@ import torch
 import torch.nn as nn
 from accelerate import PartialState
 from PIL.Image import Image
-from cobra import load
+from mlmamba import load
 
 from vlm_eval.util.interfaces import VLM, ImageProcessor, Tokenizer
 
 
-class CobraVLM(VLM):
+class MLMambaVLM(VLM):
     def __init__(
         self,
         model_family: str,
@@ -46,7 +46,7 @@ class CobraVLM(VLM):
         self.generate_kwargs = {"do_sample": False, "use_cache": True, "max_new_tokens": self.max_length, "temperature": self.temperature}
 
     def load(self) -> Tuple[nn.Module, Tokenizer, ImageProcessor]:
-        """Load a Cobra Model using the default initializer."""
+        """Load a MLMamba Model using the default initializer."""
 
         if self.run_dir is not None:
             load_from = self.run_dir
@@ -57,7 +57,7 @@ class CobraVLM(VLM):
 
         # Get Fully Initialized VLM Instance (+ handle `load_precision`)
         vlm = load(load_from, hf_token=self.hf_token)
-        vlm.to(self.distributed_state.device, dtype=self.dtype)
+        vlm.to(self.distributed_state.device, dtype=self.dtype)  # self.distributed_state.device='CUDA'
 
         # Get Tokenizer and Image Processor
         tokenizer, image_transform = vlm.llm_backbone.tokenizer, vlm.vision_backbone.image_transform
@@ -116,11 +116,11 @@ class CobraVLM(VLM):
 
     def get_vqa_chat_prompt_fn(self, uncertainty_aware: bool = False) -> Callable[[str], str]:
         """Generates the full reference prompt for VQA tasks."""
-        prompt_builder_fn = self.model.get_prompt_builder
+        prompt_builder_fn = self.model.get_prompt_builder  # 自动获取mlmamba对应的prompt_builder
 
         def vqa_prompt_fn(question: str) -> str:
             # Use Default Prompt (same as LLaVa-v1.5) except for text-vqa (move reference ocr token to the beginning of the prompt)
-            prompt_builder = prompt_builder_fn()
+            prompt_builder = prompt_builder_fn()  # 自动获取mlmamba对应的prompt_builder
             q_maybe_ocr = question.split("\nReference OCR token: ")
             if len(q_maybe_ocr) != 1:
                 q, ocr_tokens = q_maybe_ocr
@@ -129,12 +129,12 @@ class CobraVLM(VLM):
 
             # For some evaluation such as VizWiz, models are expected to output "unanswerable" when questions are
             # ambiguous --> LLaVa 1.5 handles this by injecting the following "trigger phrase" into the prompt.
-            if uncertainty_aware:
+            if uncertainty_aware:  # 启用不确定性感知：当信息不足时，模型可以回答 "Unanswerable"
                 q_prompt += "\nWhen the provided information is insufficient, respond with 'Unanswerable'."
                 q_prompt += "\nAnswer the question using a single word or phrase."
 
             # Otherwise, LLaVa-1.5 encourages short VQA responses by default.
-            else:
+            else:  # 默认情况：模型不考虑信息是否充足，只需用简短的回答
                 q_prompt += "\nAnswer the question using a single word or phrase."
 
             # Add to Prompt Builder
